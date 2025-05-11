@@ -22,4 +22,4 @@ if (WIN32 AND BUILD_SHARED_LIBS)
             $<TARGET_FILE:binet>
             $<TARGET_FILE_DIR:binet_test>
     )
-endif()
+endif ()

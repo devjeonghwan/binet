@@ -23,18 +23,18 @@ BiNetStatus BiNetCreateString(BiNetString** string, const char* source)
         length++;
     }
 
-    _BiNetString* newString = (_BiNetString*)_BiNetAllocation(sizeof(_BiNetString));
+    _BiNetString* newString = _BiNetAllocation(sizeof(_BiNetString));
     if (newString == NULL)
         BINET_RETURN_STATUS(BINET_STATUS_ERROR_ALLOCATION);
 
-    newString->data = (char*)_BiNetAllocation(length + 1); // +1 for null-terminator
+    newString->data = (char*)_BiNetAllocation(length + 1);
     if (newString->data == NULL)
     {
         _BiNetDeallocation(newString);
         BINET_RETURN_STATUS(BINET_STATUS_ERROR_ALLOCATION);
     }
 
-    for (size_t i = 0; i <= length; i++) // include null-terminator
+    for (size_t i = 0; i <= length; i++)
         newString->data[i] = source[i];
 
     newString->length = length;
@@ -73,11 +73,11 @@ BiNetStatus BiNetConcatString(BiNetString** out, const BiNetString* string1, con
 
     const size_t newLength = _string1->length + _string2->length;
 
-    _BiNetString* newString = (_BiNetString*)_BiNetAllocation(sizeof(_BiNetString));
+    _BiNetString* newString = _BiNetAllocation(sizeof(_BiNetString));
     if (newString == NULL)
         BINET_RETURN_STATUS(BINET_STATUS_ERROR_ALLOCATION);
 
-    newString->data = (char*)_BiNetAllocation(newLength + 1); // +1 for null-terminator
+    newString->data = (char*)_BiNetAllocation(newLength + 1);
     if (newString->data == NULL)
     {
         _BiNetDeallocation(newString);

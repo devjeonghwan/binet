@@ -56,7 +56,7 @@ BiNetStatus _BiNetSerializeMatrixRecursive(char** buffer, size_t* capacity, size
                 {
                     const uint8_t* data = matrix->data;
                     const size_t byteIndex = nextOffset / 8;
-                    const size_t bitIndex  = nextOffset % 8;
+                    const size_t bitIndex = nextOffset % 8;
                     const uint8_t bit = (data[byteIndex] >> bitIndex) & 1;
                     snprintf(elementBuffer, sizeof(elementBuffer), "%u", bit);
                     break;
