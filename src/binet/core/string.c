@@ -34,8 +34,10 @@ BiStatus BiCreateString(BiString** string, const char* source)
         BI_RETURN_STATUS(BI_STATUS_ERROR_ALLOCATION);
     }
 
-    for (size_t i          = 0; i <= length; i++)
+    for (size_t i = 0; i <= length; i++)
+    {
         newString->data[i] = source[i];
+    }
 
     newString->length = length;
 
@@ -84,11 +86,15 @@ BiStatus BiConcatString(BiString** out, const BiString* string1, const BiString*
         BI_RETURN_STATUS(BI_STATUS_ERROR_ALLOCATION);
     }
 
-    for (size_t i          = 0; i < _string1->length; i++)
+    for (size_t i = 0; i < _string1->length; i++)
+    {
         newString->data[i] = _string1->data[i];
+    }
 
-    for (size_t i                             = 0; i < _string2->length; i++)
+    for (size_t i = 0; i < _string2->length; i++)
+    {
         newString->data[_string1->length + i] = _string2->data[i];
+    }
 
     newString->data[newLength] = '\0';
     newString->length          = newLength;

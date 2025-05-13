@@ -16,8 +16,10 @@ BiStatus BiCreateMatrix(BiMatrix** matrix, const BiSize* shape, const BiRank ran
         BI_RETURN_STATUS(BI_STATUS_ERROR_INVALID_SHAPE);
 
     for (int i = 0; i < rank; i++)
+    {
         if (shape[i] < 1)
             BI_RETURN_STATUS(BI_STATUS_ERROR_INVALID_SHAPE);
+    }
 
     _BiMatrix* newMatrix = _BiAllocation(sizeof(_BiMatrix) + sizeof(BiSize) * rank + sizeof(BiSize) * rank);
 
@@ -25,21 +27,24 @@ BiStatus BiCreateMatrix(BiMatrix** matrix, const BiSize* shape, const BiRank ran
         BI_RETURN_STATUS(BI_STATUS_ERROR_ALLOCATION);
 
     newMatrix->shape   = (BiSize*)(newMatrix + 1);
-    newMatrix->strides = newMatrix->shape + rank;
+    newMatrix->strides = (BiStride*)(newMatrix->shape + rank);
 
-    BiSize currentStride = 1;
+    BiStride currentStride = 1;
+
     for (int i = rank - 1; i >= 0; i--)
     {
         newMatrix->shape[i]   = shape[i];
         newMatrix->strides[i] = currentStride;
 
-        currentStride *= shape[i];
+        currentStride = currentStride * (BiStride)shape[i];
     }
 
     newMatrix->rank = rank;
     newMatrix->type = type;
 
-    newMatrix->data = _BiAllocation(BiGetDataTypeSize(type, currentStride));
+    newMatrix->reference      = NULL;
+    newMatrix->referenceCount = 1;
+    newMatrix->data           = _BiAllocation(BiGetDataTypeSize(type, currentStride));
 
     if (newMatrix->data == NULL)
     {
@@ -59,13 +64,28 @@ BiStatus BiDestroyMatrix(BiMatrix** matrix)
 
     _BiMatrix* _matrix = (_BiMatrix*)*matrix;
 
-    if (_matrix->data != NULL)
+    const bool isSubView    = _matrix->reference != NULL;
+    _BiMatrix* actualMatrix = isSubView ? _matrix->reference : _matrix;
+
+    actualMatrix->referenceCount--;
+
+    if (actualMatrix->referenceCount <= 0)
     {
-        _BiDeallocation(_matrix->data);
-        _matrix->data = NULL;
+        if (actualMatrix->data != NULL)
+        {
+            _BiDeallocation(actualMatrix->data);
+            actualMatrix->data = NULL;
+        }
+
+        _BiDeallocation(actualMatrix);
     }
 
-    _BiDeallocation(_matrix);
+    if (isSubView)
+    {
+        _matrix->reference = NULL;
+        _BiDeallocation(_matrix);
+    }
+
     *matrix = NULL;
 
     BI_RETURN_STATUS(BI_STATUS_SUCCESS);
@@ -85,16 +105,20 @@ BiStatus _BiAppendToBuffer(char** buffer, size_t* capacity, size_t* length, cons
         if (newBuffer == NULL)
             BI_RETURN_STATUS(BI_STATUS_ERROR_ALLOCATION);
 
-        for (size_t i    = 0; i < *length; i++)
+        for (size_t i = 0; i < *length; i++)
+        {
             newBuffer[i] = (*buffer)[i];
+        }
 
         _BiDeallocation(*buffer);
         *buffer   = newBuffer;
         *capacity = newCapacity;
     }
 
-    for (size_t i              = 0; i < textLength; i++)
+    for (size_t i = 0; i < textLength; i++)
+    {
         (*buffer)[*length + i] = text[i];
+    }
 
     *length += textLength;
     (*buffer)[*length] = '\0';
@@ -109,8 +133,8 @@ BiStatus _BiSerializeMatrixString(char**           buffer, size_t* capacity, siz
     const BiSize* shape = matrix->shape;
     const BiSize  rank  = matrix->rank;
 
-    size_t indices[BI_MAX_RANK] = {0};
-    size_t offsets[BI_MAX_RANK] = {0};
+    size_t   indices[BI_MAX_RANK] = {0};
+    BiOffset offsets[BI_MAX_RANK] = {0};
 
     size_t   depth  = 0;
     BiStatus status = _BiAppendToBuffer(buffer, capacity, length, "[");
@@ -122,7 +146,7 @@ BiStatus _BiSerializeMatrixString(char**           buffer, size_t* capacity, siz
     {
         if (indices[depth] < shape[depth])
         {
-            const size_t nextOffset = offsets[depth] + indices[depth] * matrix->strides[depth];
+            const BiOffset nextOffset = offsets[depth] + (BiOffset)indices[depth] * matrix->strides[depth];
 
             if (depth + 1 == rank)
             {

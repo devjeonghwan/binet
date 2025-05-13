@@ -17,10 +17,10 @@ int main()
     BiMatrix* operand2 = NULL;
 
     BI_CHECK(BiCreateMatrix(&operand1, (BiSize[]){2,2}, 2, BI_DATA_TYPE_BINARY));
-    BI_CHECK(BiCreateMatrix(&operand2, (BiSize[]){2,2}, 2, BI_DATA_TYPE_BINARY));
+    BI_CHECK(BiCreateMatrix(&operand2, (BiSize[]){1,2}, 2, BI_DATA_TYPE_BINARY));
 
     BI_CHECK(BiSetMatrixBinaryValues(operand1, (BiBool[]){1, 1, 1, 1}));
-    BI_CHECK(BiSetMatrixBinaryValues(operand2, (BiBool[]){1, 1, 1, 0}));
+    BI_CHECK(BiSetMatrixBinaryValues(operand2, (BiBool[]){1, 0}));
 
     BiMatrix* result = NULL;
 

@@ -8,8 +8,8 @@ BiStatus _BiSetMatrixValuesIterative(const _BiMatrix* matrix, const void* values
     const BiSize* shape = matrix->shape;
     const BiRank  rank  = matrix->rank;
 
-    size_t indices[BI_MAX_RANK] = {0};
-    size_t offsets[BI_MAX_RANK] = {0};
+    size_t   indices[BI_MAX_RANK] = {0};
+    BiOffset offsets[BI_MAX_RANK] = {0};
 
     size_t depth      = 0;
     size_t valueIndex = 0;
@@ -18,7 +18,7 @@ BiStatus _BiSetMatrixValuesIterative(const _BiMatrix* matrix, const void* values
     {
         if (indices[depth] < shape[depth])
         {
-            const size_t nextOffset = offsets[depth] + indices[depth] * matrix->strides[depth];
+            const BiOffset nextOffset = offsets[depth] + (BiOffset)indices[depth] * matrix->strides[depth];
 
             if (depth + 1 == rank)
             {

@@ -30,20 +30,21 @@ BiStatus BiComputeMatrixBitwiseAnd(BiMatrix* destination, const BiMatrix* operan
 
     const BiRank rank = _destination->rank;
 
-    size_t indices[BI_MAX_RANK]            = {0};
-    size_t offsetsOperand1[BI_MAX_RANK]    = {0};
-    size_t offsetsOperand2[BI_MAX_RANK]    = {0};
-    size_t offsetsDestination[BI_MAX_RANK] = {0};
-    size_t depth                           = 0;
+    size_t   indices[BI_MAX_RANK]            = {0};
+    BiOffset offsetsOperand1[BI_MAX_RANK]    = {0};
+    BiOffset offsetsOperand2[BI_MAX_RANK]    = {0};
+    BiOffset offsetsDestination[BI_MAX_RANK] = {0};
+    size_t   depth                           = 0;
 
+    // Currently, this SIMD acceleration code condition is too strict and needs to be improved later.
     while (depth < (size_t)rank)
     {
         if (indices[depth] < destinationShape[depth])
         {
-            const size_t index                 = indices[depth];
-            const size_t nextOffsetOperand1    = offsetsOperand1[depth] + (_operand1->shape[depth] == 1 ? 0 : index) * _operand1->strides[depth];
-            const size_t nextOffsetOperand2    = offsetsOperand2[depth] + (_operand2->shape[depth] == 1 ? 0 : index) * _operand2->strides[depth];
-            const size_t nextOffsetDestination = offsetsDestination[depth] + index * _destination->strides[depth];
+            const BiOffset index                 = (BiOffset)indices[depth];
+            const BiOffset nextOffsetOperand1    = offsetsOperand1[depth] + (_operand1->shape[depth] == 1 ? 0 : index) * _operand1->strides[depth];
+            const BiOffset nextOffsetOperand2    = offsetsOperand2[depth] + (_operand2->shape[depth] == 1 ? 0 : index) * _operand2->strides[depth];
+            const BiOffset nextOffsetDestination = offsetsDestination[depth] + index * _destination->strides[depth];
 
             if (depth + 1 == (size_t)rank)
             {
@@ -55,11 +56,11 @@ BiStatus BiComputeMatrixBitwiseAnd(BiMatrix* destination, const BiMatrix* operan
                         const BiUInt8* operand1Data    = _operand1->data;
                         const BiUInt8* operand2Data    = _operand2->data;
 
-                        const size_t  byteIndex = nextOffsetDestination / 8;
-                        const size_t  bitIndex  = nextOffsetDestination % 8;
-                        const BiUInt8 bit1      = (operand1Data[nextOffsetOperand1 / 8] >> (nextOffsetOperand1 % 8)) & 1;
-                        const BiUInt8 bit2      = (operand2Data[nextOffsetOperand2 / 8] >> (nextOffsetOperand2 % 8)) & 1;
-                        const BiUInt8 resultBit = bit1 & bit2;
+                        const BiOffset byteIndex = nextOffsetDestination / 8;
+                        const BiOffset bitIndex  = nextOffsetDestination % 8;
+                        const BiUInt8  bit1      = (operand1Data[nextOffsetOperand1 / 8] >> (nextOffsetOperand1 % 8)) & 1;
+                        const BiUInt8  bit2      = (operand2Data[nextOffsetOperand2 / 8] >> (nextOffsetOperand2 % 8)) & 1;
+                        const BiUInt8  resultBit = bit1 & bit2;
 
                         if (resultBit)
                             destinationData[byteIndex] |= (1 << bitIndex);

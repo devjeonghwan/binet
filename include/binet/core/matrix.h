@@ -10,7 +10,9 @@
 typedef struct BiMatrix BiMatrix;
 
 typedef uint16_t BiRank;
-typedef uint16_t BiSize;
+typedef uint64_t BiSize;
+typedef int64_t  BiStride;
+typedef int64_t  BiOffset;
 
 DLLEXPORT BiStatus BiCreateMatrix(BiMatrix**    matrix,
                                   const BiSize* shape,
