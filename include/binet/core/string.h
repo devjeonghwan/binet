@@ -3,16 +3,16 @@
 
 #include "binet/api.h"
 
-typedef struct BiNetString BiNetString;
+typedef struct BiString BiString;
 
-DLLEXPORT BiNetStatus BiNetCreateString(BiNetString** string, const char* source);
+DLLEXPORT BiStatus BiCreateString(BiString** string, const char* source);
 
-DLLEXPORT BiNetStatus BiNetDestroyString(BiNetString** string);
+DLLEXPORT BiStatus BiDestroyString(BiString** string);
 
-DLLEXPORT BiNetStatus BiNetConcatString(BiNetString** out,
-                                        const BiNetString* string1,
-                                        const BiNetString* string2);
+DLLEXPORT BiStatus BiConcatString(BiString**      out,
+                                  const BiString* string1,
+                                  const BiString* string2);
 
-DLLEXPORT BiNetStatus BiNetGetStringData(const char** out,
-                                         const BiNetString* string);
+DLLEXPORT BiStatus BiGetStringData(const char**    out,
+                                   const BiString* string);
 #endif //STRING_H

@@ -15,26 +15,26 @@ void deallocation(void* pointer)
     free(pointer);
 }
 
-bool _initialized = false;
-BiNetLogLevel _logLevel = BINET_LOG_LEVEL_DEBUG;
-BiNetAllocator _allocator = {
+bool        _initialized = false;
+BiLogLevel  _logLevel    = BI_LOG_LEVEL_DEBUG;
+BiAllocator _allocator   = {
     .allocationFunction = allocation,
     .deallocationFunction = deallocation
 };
 
-BiNetStatus _lastErrorStatus = BINET_STATUS_SUCCESS;
-const char* _lastErrorFile = NULL;
-uint32_t _lastErrorLine = -1;
+BiStatus    _lastErrorStatus   = BI_STATUS_SUCCESS;
+const char* _lastErrorFile     = NULL;
+uint32_t    _lastErrorLine     = -1;
 const char* _lastErrorFunction = NULL;
 
-void _BiNetSetLastError(const BiNetStatus status, const char* file, const uint32_t line, const char* function)
+void _BiSetLastError(const BiStatus status, const char* file, const uint32_t line, const char* function)
 {
-    if (status == BINET_STATUS_SUCCESS)
+    if (status == BI_STATUS_SUCCESS)
         return;
 
-    _lastErrorStatus = status;
-    _lastErrorFile = file;
-    _lastErrorLine = line;
+    _lastErrorStatus   = status;
+    _lastErrorFile     = file;
+    _lastErrorLine     = line;
     _lastErrorFunction = function;
 
 #ifdef _DEBUG
@@ -42,86 +42,86 @@ void _BiNetSetLastError(const BiNetStatus status, const char* file, const uint32
 #endif
 }
 
-void* _BiNetAllocation(const size_t size)
+void* _BiAllocation(const size_t size)
 {
     if (!_initialized)
     {
-        BINET_SET_STATUS(BINET_STATUS_ERROR_NOT_INITIALIZED);
+        BI_SET_STATUS(BI_STATUS_ERROR_NOT_INITIALIZED);
         return NULL;
     }
 
     return _allocator.allocationFunction(size);
 }
 
-void _BiNetDeallocation(void* pointer)
+void _BiDeallocation(void* pointer)
 {
     if (!_initialized)
     {
-        BINET_SET_STATUS(BINET_STATUS_ERROR_NOT_INITIALIZED);
+        BI_SET_STATUS(BI_STATUS_ERROR_NOT_INITIALIZED);
     }
 
     _allocator.deallocationFunction(pointer);
 }
 
-BiNetStatus BiNetInitialize(const BiNetLogLevel logLevel, const BiNetAllocator* allocator)
+BiStatus BiInitialize(const BiLogLevel logLevel, const BiAllocator* allocator)
 {
     if (_initialized)
-        BINET_RETURN_STATUS(BINET_STATUS_ERROR_ALREADY_INITIALIZED);
+        BI_RETURN_STATUS(BI_STATUS_ERROR_ALREADY_INITIALIZED);
 
     _initialized = true;
-    _logLevel = logLevel;
+    _logLevel    = logLevel;
 
     if (allocator == NULL)
     {
-        _allocator.allocationFunction = allocation;
+        _allocator.allocationFunction   = allocation;
         _allocator.deallocationFunction = deallocation;
     }
     else
     {
-        _allocator.allocationFunction = allocator->allocationFunction;
+        _allocator.allocationFunction   = allocator->allocationFunction;
         _allocator.deallocationFunction = allocator->deallocationFunction;
     }
 
-    BINET_RETURN_STATUS(BINET_STATUS_SUCCESS);
+    BI_RETURN_STATUS(BI_STATUS_SUCCESS);
 }
 
-BiNetStatus BiNetFinalize()
+BiStatus BiFinalize()
 {
     if (!_initialized)
-        BINET_RETURN_STATUS(BINET_STATUS_ERROR_NOT_INITIALIZED);
+        BI_RETURN_STATUS(BI_STATUS_ERROR_NOT_INITIALIZED);
 
-    _initialized = false;
-    _logLevel = BINET_LOG_LEVEL_INFO;
-    _allocator.allocationFunction = allocation;
+    _initialized                    = false;
+    _logLevel                       = BI_LOG_LEVEL_INFO;
+    _allocator.allocationFunction   = allocation;
     _allocator.deallocationFunction = deallocation;
 
-    BINET_RETURN_STATUS(BINET_STATUS_SUCCESS);
+    BI_RETURN_STATUS(BI_STATUS_SUCCESS);
 }
 
-void BiNetPrintLastError()
+void BiPrintLastError()
 {
-    if (_lastErrorStatus == BINET_STATUS_SUCCESS)
+    if (_lastErrorStatus == BI_STATUS_SUCCESS)
         return;
 
-    printf("Last Error %s in %s:%d  %s\r\n", BiNetGetStatusString(_lastErrorStatus), _lastErrorFile, _lastErrorLine, _lastErrorFunction);
+    printf("Last Error %s in %s:%d  %s\r\n", BiGetStatusString(_lastErrorStatus), _lastErrorFile, _lastErrorLine, _lastErrorFunction);
 }
 
-BiNetStatus BiNetGetLastErrorStatus()
+BiStatus BiGetLastErrorStatus()
 {
     return _lastErrorStatus;
 }
 
-const char* BiNetGetLastErrorFile()
+const char* BiGetLastErrorFile()
 {
     return _lastErrorFile;
 }
 
-uint32_t BiNetGetLastErrorLine()
+uint32_t BiGetLastErrorLine()
 {
     return _lastErrorLine;
 }
 
-const char* BiNetGetLastErrorFunction()
+const char* BiGetLastErrorFunction()
 {
     return _lastErrorFunction;
 }

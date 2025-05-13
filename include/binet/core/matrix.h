@@ -5,27 +5,30 @@
 #include "binet/core/data_type.h"
 #include "binet/core/string.h"
 
-typedef struct BiNetMatrix BiNetMatrix;
+#define BI_MAX_RANK 8
 
-typedef uint16_t BiNetRank;
-typedef uint16_t BiNetSize;
+typedef struct BiMatrix BiMatrix;
 
-DLLEXPORT BiNetStatus BiNetCreateMatrix(BiNetMatrix** matrix,
-                                        const BiNetSize* shape,
-                                        BiNetRank rank,
-                                        BiNetDataType type);
+typedef uint16_t BiRank;
+typedef uint16_t BiSize;
 
-DLLEXPORT BiNetStatus BiNetDestroyMatrix(BiNetMatrix** matrix);
+DLLEXPORT BiStatus BiCreateMatrix(BiMatrix**    matrix,
+                                  const BiSize* shape,
+                                  BiRank        rank,
+                                  BiDataType    type);
 
-DLLEXPORT BiNetStatus BiNetGetMatrixString(BiNetString** out,
-                                           const BiNetMatrix* matrix,
-                                           bool pretty);
+DLLEXPORT BiStatus BiDestroyMatrix(BiMatrix** matrix);
 
-DLLEXPORT BiNetStatus BiNetGetMatrixDataType(BiNetDataType* out,
-                                             const BiNetMatrix* matrix);
+DLLEXPORT BiStatus BiGetMatrixString(BiString**      out,
+                                     const BiMatrix* matrix,
+                                     bool            pretty);
 
-DLLEXPORT BiNetStatus BiNetComputeBitwiseXor(BiNetMatrix** destination,
-                                             const BiNetMatrix* operand1,
-                                             const BiNetMatrix* operand2);
+DLLEXPORT BiStatus BiGetMatrixDataType(BiDataType*     out,
+                                       const BiMatrix* matrix);
+
+DLLEXPORT BiStatus BiGetBroadcastShape(BiSize*       out,
+                                       const BiSize* shape1,
+                                       const BiSize* shape2,
+                                       BiRank        rank);
 
 #endif //MATRIX_H

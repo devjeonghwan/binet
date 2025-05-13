@@ -3,14 +3,14 @@
 
 #include "binet/api.h"
 
-#define BINET_RETURN_STATUS(status) do { _BiNetSetLastError(status, __FILE__, __LINE__, __func__); return status; } while(0)
+#define BI_RETURN_STATUS(status) do { _BiSetLastError(status, __FILE__, __LINE__, __func__); return status; } while(0)
 
-#define BINET_SET_STATUS(status) do { _BiNetSetLastError(status, __FILE__, __LINE__, __func__); } while(0)
+#define BI_SET_STATUS(status) do { _BiSetLastError(status, __FILE__, __LINE__, __func__); } while(0)
 
-void _BiNetSetLastError(BiNetStatus status, const char* file, uint32_t line, const char* function);
+void _BiSetLastError(BiStatus status, const char* file, uint32_t line, const char* function);
 
-void* _BiNetAllocation(size_t size);
+void* _BiAllocation(size_t size);
 
-void _BiNetDeallocation(void* pointer);
+void _BiDeallocation(void* pointer);
 
 #endif //API_INTERNAL_H

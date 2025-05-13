@@ -37,83 +37,88 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef void* (*BINET_ALLOCATION_FUNCTION)(size_t);
-typedef void (*BINET_DEALLOCATION_FUNCTION)(void*);
+typedef void* (*BI_ALLOCATION_FUNCTION)(size_t);
+typedef void (* BI_DEALLOCATION_FUNCTION)(void*);
 
 typedef struct
 {
-    BINET_ALLOCATION_FUNCTION allocationFunction;
-    BINET_DEALLOCATION_FUNCTION deallocationFunction;
-} BiNetAllocator;
+    BI_ALLOCATION_FUNCTION   allocationFunction;
+    BI_DEALLOCATION_FUNCTION deallocationFunction;
+} BiAllocator;
 
 typedef enum
 {
-    BINET_STATUS_SUCCESS = 0,
+    BI_STATUS_SUCCESS = 0,
 
-    BINET_STATUS_ERROR_INTERNAL = 1,
-    BINET_STATUS_ERROR_OVERFLOW = 2,
+    BI_STATUS_ERROR_INTERNAL        = 100,
+    BI_STATUS_ERROR_OVERFLOW        = 101,
+    BI_STATUS_ERROR_NOT_IMPLEMENTED = 102,
 
-    BINET_STATUS_ERROR_INVALID_ARGUMENT = 3,
-    BINET_STATUS_ERROR_INVALID_SHAPE = 4,
+    BI_STATUS_ERROR_INVALID_ARGUMENT  = 200,
+    BI_STATUS_ERROR_INVALID_SHAPE     = 201,
+    BI_STATUS_ERROR_INVALID_RANK      = 202,
+    BI_STATUS_ERROR_INVALID_DATA_TYPE = 203,
 
-    BINET_STATUS_ERROR_ALREADY_INITIALIZED = 5,
-    BINET_STATUS_ERROR_NOT_INITIALIZED = 6,
+    BI_STATUS_ERROR_ALREADY_INITIALIZED = 700,
+    BI_STATUS_ERROR_NOT_INITIALIZED     = 701,
 
-    BINET_STATUS_ERROR_ALLOCATION = 7,
-    BINET_STATUS_ERROR_DEALLOCATION = 8,
-} BiNetStatus;
+    BI_STATUS_ERROR_ALLOCATION   = 800,
+    BI_STATUS_ERROR_DEALLOCATION = 801,
 
-static const char* BiNetGetStatusString(const BiNetStatus status)
+    BI_STATUS_ERROR_UNSUPPORTED_DATA_TYPE = 900,
+} BiStatus;
+
+static const char* BiGetStatusString(const BiStatus status)
 {
     switch (status)
     {
-    case BINET_STATUS_SUCCESS:
-        return "BINET_STATUS_SUCCESS";
+    case BI_STATUS_SUCCESS:
+        return "BI_STATUS_SUCCESS";
 
-    case BINET_STATUS_ERROR_INTERNAL:
-        return "BINET_STATUS_ERROR_INTERNAL";
-    case BINET_STATUS_ERROR_OVERFLOW:
-        return "BINET_STATUS_ERROR_OVERFLOW";
+    case BI_STATUS_ERROR_INTERNAL:
+        return "BI_STATUS_ERROR_INTERNAL";
+    case BI_STATUS_ERROR_OVERFLOW:
+        return "BI_STATUS_ERROR_OVERFLOW";
 
-    case BINET_STATUS_ERROR_INVALID_ARGUMENT:
-        return "BINET_STATUS_ERROR_INVALID_ARGUMENT";
+    case BI_STATUS_ERROR_INVALID_ARGUMENT:
+        return "BI_STATUS_ERROR_INVALID_ARGUMENT";
 
-    case BINET_STATUS_ERROR_ALREADY_INITIALIZED:
-        return "BINET_STATUS_ERROR_ALREADY_INITIALIZED";
-    case BINET_STATUS_ERROR_NOT_INITIALIZED:
-        return "BINET_STATUS_ERROR_NOT_INITIALIZED";
+    case BI_STATUS_ERROR_ALREADY_INITIALIZED:
+        return "BI_STATUS_ERROR_ALREADY_INITIALIZED";
+    case BI_STATUS_ERROR_NOT_INITIALIZED:
+        return "BI_STATUS_ERROR_NOT_INITIALIZED";
 
-    case BINET_STATUS_ERROR_ALLOCATION:
-        return "BINET_STATUS_ERROR_ALLOCATION";
-    case BINET_STATUS_ERROR_DEALLOCATION:
-        return "BINET_STATUS_ERROR_DEALLOCATION";
+    case BI_STATUS_ERROR_ALLOCATION:
+        return "BI_STATUS_ERROR_ALLOCATION";
+    case BI_STATUS_ERROR_DEALLOCATION:
+        return "BI_STATUS_ERROR_DEALLOCATION";
 
     default:
-        return "BINET_STATUS_UNKNOWN";
+        return "BI_STATUS_UNKNOWN";
     }
 }
 
 typedef enum
 {
-    BINET_LOG_LEVEL_DEBUG = 0,
-    BINET_LOG_LEVEL_INFO = 1,
-    BINET_LOG_LEVEL_WARNING = 2,
-    BINET_LOG_LEVEL_ERROR = 3,
-    BINET_LOG_LEVEL_DISABLE = 4,
-} BiNetLogLevel;
+    BI_LOG_LEVEL_DEBUG   = 0,
+    BI_LOG_LEVEL_INFO    = 1,
+    BI_LOG_LEVEL_WARNING = 2,
+    BI_LOG_LEVEL_ERROR   = 3,
+    BI_LOG_LEVEL_DISABLE = 4,
+} BiLogLevel;
 
-DLLEXPORT BiNetStatus BiNetInitialize(BiNetLogLevel logLevel, const BiNetAllocator* allocator);
+DLLEXPORT BiStatus BiInitialize(BiLogLevel logLevel, const BiAllocator* allocator);
 
-DLLEXPORT BiNetStatus BiNetFinalize();
+DLLEXPORT BiStatus BiFinalize();
 
-DLLEXPORT void BiNetPrintLastError();
+DLLEXPORT void BiPrintLastError();
 
-DLLEXPORT BiNetStatus BiNetGetLastErrorStatus();
+DLLEXPORT BiStatus BiGetLastErrorStatus();
 
-DLLEXPORT const char* BiNetGetLastErrorFile();
+DLLEXPORT const char* BiGetLastErrorFile();
 
-DLLEXPORT uint32_t BiNetGetLastErrorLine();
+DLLEXPORT uint32_t BiGetLastErrorLine();
 
-DLLEXPORT const char* BiNetGetLastErrorFunction();
+DLLEXPORT const char* BiGetLastErrorFunction();
 
 #endif //API_H
